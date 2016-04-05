@@ -6,8 +6,8 @@ void setup()
 void loop()
 {
   digitalWrite(ledPin, HIGH); //点亮小灯
-//  delay(1000); //延时1 秒,
-//  digitalWrite(ledPin, LOW); //熄灭小灯
-//  delay(1000); // 延时1 秒
+  delay(1000); //延时1 秒,
+  digitalWrite(ledPin, LOW); //熄灭小灯
+  delay(1000); // 延时1 秒
 }
 
