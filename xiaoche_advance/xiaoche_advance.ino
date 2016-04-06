@@ -28,10 +28,9 @@ void loop()
   val = Serial.read();//读取串口收到的数据
   if(val == 'go')
   {
-//    go(100);
+    go();
   }
 
-  go();
 //  delay(20000);
 }
 
