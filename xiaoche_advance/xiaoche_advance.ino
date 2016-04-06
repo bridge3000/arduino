@@ -32,7 +32,7 @@ void loop()
   }
 
   go();
-  delay(2000);
+//  delay(20000);
 }
 
 void go()     // 前进
