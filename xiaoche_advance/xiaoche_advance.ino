@@ -2,6 +2,7 @@
 //  智能小车前后左右综合实验
 //===============================================================
 //#include <Servo.h> 
+#define GO 1
 int Left_motor_back=8;     //左电机后退(IN1)
 int Left_motor_go=9;     //左电机前进(IN2)
 
@@ -10,6 +11,7 @@ int Right_motor_back=11;    // 右电机后退(IN4)
 int val;
 int speed = 200;
 int acceleration = 10; //加速度
+
 
 void setup()
 {
@@ -26,10 +28,13 @@ void setup()
 void loop()
 {  
   val = Serial.read();//读取串口收到的数据
-  if(val == 'go')
+  Serial.println(val);
+  if(val == GO)
   {
     go();
   }
+  
+      go();
 
 //  delay(20000);
 }
