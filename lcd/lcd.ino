@@ -1,39 +1,34 @@
-#include <LiquidCrystal.h> //申明1602液晶的函数库
-//申明1602液晶的引脚所连接的Arduino数字端口，8线或4线数据模式，任选其一
-LiquidCrystal lcd(12,11,10,9,8,7,6,5,4,3,2);   //8数据口模式连线声明
-//LiquidCrystal lcd(12,11,10,5,4,3,2); //4数据口模式连线声明
-int i;
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>     //包含头文件
+LiquidCrystal_I2C lcd(0x27,16,2);    //创建一个对象：lcd
+/******************************************/
+void CollectDate()        //采集电压值函数
+{
+  char i;
+  double voldate=0;
+  long orldate=0,sumdate=0;
+  for(i=0;i<10;i++)        //将采集到的10次电压值相加求和
+  {
+    sumdate=sumdate+analogRead(A0);
+  }
+  
+  orldate=sumdate/10;       //求出平均值
+  voldate=orldate*5.0/1023;      //将电压值由数字量换成模拟量
+  lcd.print(voldate);       //lcd显示模拟电压值
+  lcd.print("V");
+}
+/******************************************/
 void setup()
 {
-  lcd.begin(16,2);      //初始化1602液晶工作                       模式
-                       //定义1602液晶显示范围为2行16列字符
-  while(1)
-  {
-    lcd.home();        //把光标移回左上角，即从头开始输出   
-    lcd.print("Hello World"); //显示
-    lcd.setCursor(0,1);   //把光标定位在第1行，第0列
-    lcd.print("Welcome to BST-Arduino");       //显示
-    delay(500);
-    for(i=0;i<3;i++)
-    {
-      lcd.noDisplay();
-      delay(500);
-      lcd.display();
-      delay(500);
-    }
-    for(i=0;i<24;i++)
-    {
-      lcd.scrollDisplayLeft();
-      delay(500);
-    }
-    lcd.clear();
-    lcd.setCursor(0,0);        //把光标移回左上角，即从头开始输出   
-    lcd.print("Hi,"); //显示
-    lcd.setCursor(0,1);   //把光标定位在第1行，第0列
-    lcd.print("Arduino is fun");       //显示
-    delay(2000);
-  }
+  lcd.init();         //lcd初始化函数
+  lcd.backlight();        //lcd开启背光灯函数
+  lcd.print("success");
+  delay(5000);
 }
+/******************************************/
 void loop()
-{}//初始化已完成显示，主循环无动作
-
+{
+   CollectDate();        //采集数据
+   delay(1000);         //延时1s
+   lcd.clear();         //清空lcd显示
+}
