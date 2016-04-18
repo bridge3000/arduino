@@ -1,4 +1,4 @@
-int ledPin = 8; //定义数字10 接口
+int ledPin = 14; //定义数字10 接口
 void setup()
 {
   pinMode(ledPin, OUTPUT);//定义小灯接口为输出接口
