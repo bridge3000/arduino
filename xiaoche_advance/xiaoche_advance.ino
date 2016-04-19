@@ -13,7 +13,7 @@ int Left_motor_go = 9;   //左电机前进(IN2)
 int Right_motor_go = 10;  // 右电机前进(IN3)
 int Right_motor_back = 11;  // 右电机后退(IN4)
 int val;
-int speed = 100;
+int speed = 80;
 int acceleration = 20; //加速度
 int turnSpeed = 100;
 unsigned long last = millis();
@@ -44,6 +44,7 @@ void setup()
 
 void loop()
 {
+
   //  val = Serial.read();//读取串口收到的数据
   if (irrecv.decode(&results)) //调用库函数：解码
   {
