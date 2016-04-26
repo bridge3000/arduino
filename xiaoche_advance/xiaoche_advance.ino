@@ -15,7 +15,7 @@ int Right_motor_back = 11;  // 右电机后退(IN4)
 int val;
 int speed = 80;
 int acceleration = 20; //加速度
-int turnSpeed = 100;
+int turnSpeed = 80;
 unsigned long last = millis();
 long cmdGo1  = 0x80102658;//编码示例,与发送匹配用
 long cmdGo2  = 0x8010A658;
