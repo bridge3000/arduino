@@ -1,4 +1,4 @@
-#include "WProgram.h"
+#include "Arduino.h"
 #include "DS1302.h"
 
 

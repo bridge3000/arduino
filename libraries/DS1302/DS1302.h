@@ -28,7 +28,7 @@ SUCH DAMAGE.
 #ifndef DS1302_h
 #define DS1302_h
 
-#include "WProgram.h"
+#include "Arduino.h"
 
 /**
  * Convenience register constants
