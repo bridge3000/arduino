@@ -24,24 +24,24 @@ void loop() {
   
   if(soundId != -1)
   {
-    Serial.print(soundId);
+    Serial.println(soundId);
   }
   
   switch(soundId)                          //判断识别
   {
     case 0:                                     //若是指令“kai deng”
 //	digitalWrite(Led,HIGH);                 //点亮LED
-        Serial.print("LED ON");
+        Serial.println("LED ON");
         break;
     case 1:                                     //若是指令“guan deng”
 //	digitalWrite(Led,LOW);//熄灭LED
-        Serial.print("LED OFF");
+        Serial.println("LED OFF");
         break;   
     case 2:
-        Serial.print("ni hao");
+        Serial.println("ni hao");
         break;   
     case 3:
-        Serial.print("wei wei");
+        Serial.println("wei wei");
         break;   
     default:
         break;

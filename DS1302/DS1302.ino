@@ -13,8 +13,8 @@ IO(DS1302 pin6) -> Arduino D6
 SCLK(DS1302 pin7) -> Arduino D7
 */
 uint8_t CE_PIN   = 5;
-uint8_t IO_PIN   = 3;
-uint8_t SCLK_PIN = 2;
+uint8_t IO_PIN   = 6;
+uint8_t SCLK_PIN = 7;
 
 /* 日期变量缓存 */
 char buf[50];
@@ -42,6 +42,7 @@ void print_time()
     case 6: strcpy(day, "Friday"); break;
     case 7: strcpy(day, "Saturday"); break;
     }
+    
     /* 将日期代码格式化凑成buf等待输出 */
     snprintf(buf, sizeof(buf), "%s %04d-%02d-%02d %02d:%02d:%02d", day, t.yr, t.mon, t.date, t.hr, t.min, t.sec);
     /* 输出日期到串口 */
