@@ -16,8 +16,10 @@ void setup() {
 }
 
 void loop() {
-  int Soundvalue = digitalRead(soundpin);  //读取输入模拟值
-  Serial.println( digitalRead(soundpin));
+  int Soundvalue = analogRead(A0); 
+  
+//  int Soundvalue = digitalRead(soundpin);  //读取输入模拟值
+  Serial.println( Soundvalue);
   if (Soundvalue == 0)
   {
     digitalWrite(LEDpin, HIGH);     //当模拟值大于设定值后，点亮LED
