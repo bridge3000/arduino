@@ -31,10 +31,13 @@ uint8_t const  LD_CHIP_SELECT_PIN = SS;
 // The following three pins must not be redefined for hardware SPI.
 /** SPI Master Out Slave In pin */
 uint8_t const  SPI_MOSI_PIN = MOSI;
+//uint8_t const SPI_MOSI_PIN = 5;
 /** SPI Master In Slave Out pin */
 uint8_t const  SPI_MISO_PIN = MISO;
+//uint8_t const SPI_MISO_PIN = 6;
 /** SPI Clock pin */
 uint8_t const  SPI_SCK_PIN = SCK;
+//uint8_t const SPI_SCK_PIN = 7;
 /** optimize loops for hardware SPI */
 /** optimize loops for hardware SPI */
 #define OPTIMIZE_HARDWARE_SPI
@@ -45,14 +48,14 @@ uint8_t const  SPI_SCK_PIN = SCK;
 uint8_t const LD_CHIP_SELECT_PIN = 10;
 
 /** SPI Master Out Slave In pin */
-//uint8_t const SPI_MOSI_PIN = 11;
-uint8_t const SPI_MOSI_PIN = 5;
+uint8_t const SPI_MOSI_PIN = 11;
+//uint8_t const SPI_MOSI_PIN = 5;
 /** SPI Master In Slave Out pin */
-//uint8_t const SPI_MISO_PIN = 12;
-uint8_t const SPI_MISO_PIN = 6;
+uint8_t const SPI_MISO_PIN = 12;
+//uint8_t const SPI_MISO_PIN = 6;
 /** SPI Clock pin */
-//uint8_t const SPI_SCK_PIN = 13;
-uint8_t const SPI_SCK_PIN = 7;
+uint8_t const SPI_SCK_PIN = 13;
+//uint8_t const SPI_SCK_PIN = 7;
 
 #endif  // SOFTWARE_SPI
 

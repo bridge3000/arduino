@@ -12,7 +12,11 @@ void setup()
 //    digitalWrite(Led,LOW);                      //LED引脚低电平
     Serial.begin(9600);                        //配置9600
     Serial.print("Uart start!");                
-    Voice.init();                               //初始化VoiceRecognition模块   
+    Voice.init();         
+    Voice.micVol(60);
+    
+    
+    //初始化VoiceRecognition模块   
     Voice.addCommand("kai deng",0);             //添加指令，参数（指令内容，指令标签（可重复））
     Voice.addCommand("guan deng",1);            //添加指令，参数（指令内容，指令标签（可重复））
     Voice.addCommand("ni hao",2);               //添加垃圾词汇
