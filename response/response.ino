@@ -47,6 +47,10 @@ int numdata[7] = {0}, j = 0, mark = 0;
 void setup()
 {
   Serial.begin(9600);
+  
+  Serial.println(SPI_MOSI_PIN);
+  Serial.println(SPI_MISO_PIN);
+  Serial.println(SPI_SCK_PIN);
 
   //ds1302
   //  rtc.write_protect(false);
@@ -59,7 +63,7 @@ void setup()
 
   //ld3320
   Voice.init();       
-Voice.micVol(60);  //初始化VoiceRecognition模块
+  Voice.micVol(60);  //初始化VoiceRecognition模块
   Voice.addCommand("kai deng", 0);            //添加指令，参数（指令内容，指令标签（可重复））
   Voice.addCommand("guan deng", 1);           //添加指令，参数（指令内容，指令标签（可重复））
   Voice.addCommand("ni hao", 2);  
