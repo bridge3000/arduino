@@ -17,7 +17,7 @@ VoiceRecognition Voice;                         //声明一个语音识别对象
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char server[] = "www.milan100.com";    // name address for Google (using DNS)
 IPAddress ip(192, 168, 0, 120);
-//EthernetClient client;
+EthernetClient client;
 
 int soundId;
 String questionType = "";
@@ -47,10 +47,6 @@ int numdata[7] = {0}, j = 0, mark = 0;
 void setup()
 {
   Serial.begin(9600);
-  
-  Serial.println(SPI_MOSI_PIN);
-  Serial.println(SPI_MISO_PIN);
-  Serial.println(SPI_SCK_PIN);
 
   //ds1302
   //  rtc.write_protect(false);
@@ -73,19 +69,21 @@ void setup()
   Voice.start();//开始识别
 
   //w5100
-//  if (Ethernet.begin(mac) == 0) {
-//    Serial.println("Failed to configure Ethernet using DHCP");
-//    Ethernet.begin(mac, ip);
-//  }
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    Ethernet.begin(mac, ip);
+  }
 
   // give the Ethernet shield a second to initialize:
   Serial.println("initialize network...");
-  //  delay(1000);
+  delay(1000);
+  
+  getServerTime();
 }
 
 void loop()
 {
-  recogniseSound();
+//  recogniseSound();
 
   receiveResponse();
 }
@@ -119,70 +117,81 @@ void recogniseSound()
 void receiveResponse()
 {
   //http response
-//  if (client.available()) {
-//    char c = client.read();
-//    //    Serial.print(c);
-//
-//    if (responseType == 0)
-//    {
-//      if (c != ':')
-//      {
-//        headKey += c;
-//      }
-//      else
-//      {
-//        responseType = 1;
-//      }
-//    }
-//    else if (responseType == 1)
-//    {
+  if (client.available()) {
+    char c = client.read();
+//    Serial.print(c);
+
+    if (responseType == 0)
+    {
+      if (c != ':') //正在接收key
+      {
+        headKey += c;
+      }
+      else //key接收完毕
+      {
+        responseType = 1;
+      }
+    }
+    else if (responseType == 1)
+    {
 //      if (c != '\r\n')
-//      {
-//        headValue += c;
-//      }
-//      else
-//      {
-//        responseType = 0;
-//        if (headKey == "Question-Type")
-//        {
-//          questionType = headValue;
-//        }
-//        else if (headKey == "Response-Msg")
-//        {
-//          responseMsg = headValue;
-//        }
-//      }
-//    }
-//  }
+      if (c != '\n') //正在接收value
+      {
+        headValue += c;
+      }
+      else //换行了，开始读value
+      {
+        responseType = 0;
+        if (headKey == "Question-Type")
+        {
+          questionType = headValue;
+        }
+        else if (headKey == "Response-Msg")
+        {
+          responseMsg = headValue;
+        }
+        
+//        Serial.println("key="+headKey);
+//        Serial.println("val="+headValue);
+        headKey = "";
+        headValue = "";
+      }
+    }
+  }
 
   // if the server's disconnected, stop the client:
-//  if (!client.connected()) {
-//    //    Serial.println("disconnecting.");
-//    client.stop();
-//
-//    //split the response string, \r\n
-//    lcd.clear();
-//    lcd.print(responseMsg);
-//
-//    responseType = 0;
-//    questionType = "";
+  if (!client.connected()) {
+    //    Serial.println("disconnecting.");
+    client.stop();
+
+    //split the response string, \r\n
+    lcd.clear();
+    lcd.print(responseMsg);
+    
+//    Serial.println(questionType);
+//    Serial.println(responseMsg);
+//    
+    
+
+    responseType = 0;
+    questionType = "";
 //    responseMsg = "";
-//  }
+  }
 }
 
 void sendServerQuestion(String action)
 {
-//  if (client.connect(server, 80)) {
-//    Serial.println("connected");
-//    // Make a HTTP request:
-//    client.println("GET /response/" + action + " HTTP/1.1");
-//    client.println("Host: www.milan100.com");
-//    client.println("Connection: close");
-//    client.println();
-//  }
-//  else {
-//    Serial.println("connection failed");
-//  }
+  if (client.connect(server, 80)) {
+    Serial.println("connected");
+    // Make a HTTP request:
+    client.println("GET /response/" + action + " HTTP/1.1");
+    client.println("Host: www.milan100.com");
+    client.println("Connection: close");
+    client.println();
+  }
+  else {
+    Serial.println("connection failed");
+  }
 }
 
 void getServerTime()

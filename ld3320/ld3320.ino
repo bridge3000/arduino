@@ -8,9 +8,17 @@ int soundId;
 
 void setup() 
 {
+
+  
+  
 //    pinMode(Led,OUTPUT);                        //初始化LED引脚为输出模式
 //    digitalWrite(Led,LOW);                      //LED引脚低电平
     Serial.begin(9600);                        //配置9600
+
+  Serial.println(MOSI);
+  Serial.println(MISO);
+  Serial.println(SCK);
+  
     Serial.print("Uart start!");                
     Voice.init();         
     Voice.micVol(60);
