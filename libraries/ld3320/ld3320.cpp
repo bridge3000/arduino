@@ -2,8 +2,8 @@
 
 
 uint8_t g_Mic;
-int RSTB=9;//RSTB引脚定义
-int CS=4;//RSTB引脚定义
+int RSTB = 9;//RSTB引脚定义
+int CS = 4;//SPI片选
 uint8_t MIC_VOL=0x55;//ADC增益初始值
 uint8_t speech_endpoint=0x10;//语音端点检测初始值
 uint8_t speech_start_time=0x08;//语音端点检测开始时间初始值
