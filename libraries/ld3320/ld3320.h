@@ -23,8 +23,6 @@
 #endif  // MEGA_SOFT_SPI
 
 
-#define SOFTWARE_SPI // π”√»ÌSPI
-
 
 //------------------------------------------------------------------------------
 // SPI pin definitions
@@ -53,14 +51,14 @@ uint8_t const  SPI_SCK_PIN = SCK;
 uint8_t const LD_CHIP_SELECT_PIN = 10;
 
 /** SPI Master Out Slave In pin */
-//uint8_t const SPI_MOSI_PIN = 11;
-uint8_t const SPI_MOSI_PIN = 5;
+uint8_t const SPI_MOSI_PIN = 11;
+
 /** SPI Master In Slave Out pin */
-//uint8_t const SPI_MISO_PIN = 12;
-uint8_t const SPI_MISO_PIN = 6;
+uint8_t const SPI_MISO_PIN = 12;
+
 /** SPI Clock pin */
-//uint8_t const SPI_SCK_PIN = 13;
-uint8_t const SPI_SCK_PIN = 7;
+uint8_t const SPI_SCK_PIN = 13;
+
 
 #endif  // SOFTWARE_SPI
 
