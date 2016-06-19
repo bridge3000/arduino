@@ -17,13 +17,17 @@ void loop() {
 
   if ( (infraredPinState == 1) && (lightState == 1))
   {
-    digitalWrite(ledPin, HIGH);
-    delay(5000);
-    digitalWrite(ledPin, LOW);
+    delay(2000);
+    if ( (infraredPinState == 1) && (lightState == 1)) //2秒后还能检测到生物红外说明不是临时通过
+    {
+      digitalWrite(ledPin, HIGH);
+      delay(30000);
+      digitalWrite(ledPin, LOW);
+    }
   }
 
-//  Serial.print("light=");
-//  Serial.println(lightState);
+  //  Serial.print("light=");
+  //  Serial.println(lightState);
 
   delay(100);
 }
