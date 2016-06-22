@@ -1,11 +1,57 @@
-#include <ld3320.h>
+#define uint8 unsigned char
+#define uint16 unsigned int
+#define uint32 unsigned long
 
-int nMp3Size = 500;
-int nMp3Pos = 0;
-int bMp3Play = 0;
+#define LD_MODE_IDLE		0x00
+#define LD_MODE_ASR_RUN		0x08
+#define LD_MODE_MP3		 	0x40
+
+extern uint32 nMp3StartPos;
+//extern uint32 nMp3Size;
+uint32 nMp3Size;
+extern uint32 nMp3Pos;
+//extern uint8 bMp3Play;
+uint8 bMp3Play;
+//extern uint8 nLD_Mode;
+uint8 nLD_Mode;
+//extern uint8 nDemoFlag;
+uint8 nDemoFlag;
+
+int RSTB = 9;//RSTB引脚定义
+int CS = 4;//SPI片选
+//int EX0 = 2; //中断
+
+uint32 nMp3Pos=0;
+uint8 ucSPVol=15; // MAX=15 MIN=0		//	Speaker喇叭输出的音量
+uint8 ucRegVal;
+uint8 ucHighInt;
+uint8 ucLowInt;
+uint8 ucStatus;
+
+extern uint8 nAsrStatus;
+extern uint8 nDemoFlag;
+
+// LD chip fixed values.
+#define        RESUM_OF_MUSIC               0x01
+#define        CAUSE_MP3_SONG_END           0x20
+
+#define        MASK_INT_SYNC				0x10
+#define        MASK_INT_FIFO				0x04
+#define    	   MASK_AFIFO_INT				0x01
+#define        MASK_FIFO_STATUS_AFULL		0x08
+
+#define CLK_IN   		22.1184	/* user need modify this value according to clock in */
+#define LD_PLL_11			(uint8)((CLK_IN/2.0)-1)
+#define LD_PLL_MP3_19		0x0f
+#define LD_PLL_MP3_1B		0x18
+#define LD_PLL_MP3_1D   	(uint8)(((90.0*((LD_PLL_11)+1))/(CLK_IN))-1)
+
+#define LD_PLL_ASR_19 		(uint8)(CLK_IN*32.0/(LD_PLL_11+1) - 0.51)
+#define LD_PLL_ASR_1B 		0x48
+#define LD_PLL_ASR_1D 		0x1f
 
 #define DEMO_SOUND_SIZE 1235
-unsigned char xdata bpDemoSound [DEMO_SOUND_SIZE] = {	//	对应verygood_withHead.mp3 这个MP3文件有ID3的文件头
+unsigned char bpDemoSound [DEMO_SOUND_SIZE] = {	//	对应verygood_withHead.mp3 这个MP3文件有ID3的文件头
   0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01, 0x76, 0x50, 0x52, 0x49, 0x56, 0x00, 0x00,
   0x00, 0x0E, 0x00, 0x00, 0x50, 0x65, 0x61, 0x6B, 0x56, 0x61, 0x6C, 0x75, 0x65, 0x00, 0xFF, 0x7F,
   0x00, 0x00, 0x50, 0x52, 0x49, 0x56, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x41, 0x76, 0x65, 0x72,
@@ -86,10 +132,8 @@ unsigned char xdata bpDemoSound [DEMO_SOUND_SIZE] = {	//	对应verygood_withHead
   0x20, 0x20, 0x0C,
 };
 
-
-
-
 void setup() {
+  attachInterrupt(0, ProcessInt0, LOW); //中断
   LD_Init_MP3();
   LD_play();
 
@@ -159,8 +203,8 @@ void LD_AdjustMIX2SPVolume(uint8 val)
 {
   ucSPVol = val;
   val = ((15 - val) & 0x0f) << 2;
-  LD_WriteReg(0x8E, val | 0xc3);
-  LD_WriteReg(0x87, 0x78);
+  writeReg(0x8E, val | 0xc3);
+  writeReg(0x87, 0x78);
 }
 
 //开始播放
@@ -178,7 +222,8 @@ void LD_play()
   writeReg(0x29, 0x04);
   writeReg(0x02, 0x01);
   writeReg(0x85, 0x5A);
-  EX0 = 1;
+//  EX0 = 1;
+//    digitalWrite(EX0, HIGH);
 }
 
 void LD_ReloadMp3Data()
@@ -189,15 +234,15 @@ void LD_ReloadMp3Data()
 
   if (nDemoFlag)
   {
-    ucStatus = LD_ReadReg(0x06);
+    ucStatus = readReg(0x06);
     while ( !(ucStatus & MASK_FIFO_STATUS_AFULL) && (nMp3Pos < nMp3Size) )
     {
       val = bpDemoSound[nMp3Pos++];
-      LD_WriteReg(0x01, val);
+      writeReg(0x01, val);
       if (nMp3Pos == DEMO_SOUND_SIZE)
         nMp3Pos = 0;
 
-      ucStatus = LD_ReadReg(0x06);
+      ucStatus = readReg(0x06);
     }
 
   }
@@ -207,77 +252,116 @@ void LD_ReloadMp3Data()
 void LD_Init_Common()
 {
   bMp3Play = 0;
-  LD_ReadReg(0x06);
-  LD_WriteReg(0x17, 0x35);
+  readReg(0x06);
+  writeReg(0x17, 0x35);
   delay(10);
-  LD_ReadReg(0x06);
-  LD_WriteReg(0x89, 0x03);
+  readReg(0x06);
+  writeReg(0x89, 0x03);
   delay(5);
-  LD_WriteReg(0xCF, 0x43);
+  writeReg(0xCF, 0x43);
   delay(5);
-  LD_WriteReg(0xCB, 0x02); /*PLL setting*/
-  LD_WriteReg(0x11, LD_PLL_11);
+  writeReg(0xCB, 0x02); /*PLL setting*/
+  writeReg(0x11, LD_PLL_11);
   if (nLD_Mode == LD_MODE_MP3)
   {
-    LD_WriteReg(0x1E, 0x00);
+    writeReg(0x1E, 0x00);
     //!!注意，下面三个寄存器，会随晶振频率变化而设置不同
     //!!注意,请根据使用的晶振频率修改参考程序中的CLK_IN
-    LD_WriteReg(0x19, LD_PLL_MP3_19);
-    LD_WriteReg(0x1B, LD_PLL_MP3_1B);
-    LD_WriteReg(0x1D, LD_PLL_MP3_1D);
+    writeReg(0x19, LD_PLL_MP3_19);
+    writeReg(0x1B, LD_PLL_MP3_1B);
+    writeReg(0x1D, LD_PLL_MP3_1D);
   }
   else
   {
-    LD_WriteReg(0x1E, 0x00);
+    writeReg(0x1E, 0x00);
     //!!注意，下面三个寄存器，会随晶振频率变化而设置不同
     //!!注意,请根据使用的晶振频率修改参考程序中的CLK_IN
-    LD_WriteReg(0x19, LD_PLL_ASR_19);
-    LD_WriteReg(0x1B, LD_PLL_ASR_1B);
-    LD_WriteReg(0x1D, LD_PLL_ASR_1D);
+    writeReg(0x19, LD_PLL_ASR_19);
+    writeReg(0x1B, LD_PLL_ASR_1B);
+    writeReg(0x1D, LD_PLL_ASR_1D);
   }
-  LD_WriteReg(0xCD, 0x04);
-  LD_WriteReg(0x17, 0x4c);
+  writeReg(0xCD, 0x04);
+  writeReg(0x17, 0x4c);
   delay(5);
-  LD_WriteReg(0xB9, 0x00);
-  LD_WriteReg(0xCF, 0x4f);
-  LD_WriteReg(0x6F, 0xFF);
+  writeReg(0xB9, 0x00);
+  writeReg(0xCF, 0x4f);
+  writeReg(0x6F, 0xFF);
+}
+
+void cSHigh() {//CS拉高
+  digitalWrite(CS, HIGH);
+}
+void cSLow() {//CS脚拉低
+  digitalWrite(CS, LOW);
+}
+
+void writeReg(unsigned char address, unsigned char value) ////////写寄存器，参数（寄存器地址，数据）
+{
+  cSLow();////拉低CS
+  delay(10);
+  transfer(0x04);////////////写指令
+  transfer(address);
+  transfer(value);
+  cSHigh();////拉高CS
+}
+
+unsigned char readReg(unsigned char address)///读寄存器，参数（寄存器地址）
+{
+  unsigned char result;
+  cSLow();////拉低CS
+  delay(10);
+  transfer(0x05);///////////读指令
+  transfer(address);
+  result = transfer(0x00);
+  cSHigh();///拉高CS
+  return (result);
+}
+
+byte transfer(byte _data) /////////////////SPI数据交换
+{
+  SPDR = _data;
+  while (!(SPSR & _BV(SPIF)));
+  return SPDR;
 }
 
 void ProcessInt0()
 {
   uint8 nAsrResCount = 0;
-  EX0 = 0;
-  ET0 = 0;
-  ucRegVal = LD_ReadReg(0x2B);
-  ucHighInt = LD_ReadReg(0x29);
-  ucLowInt = LD_ReadReg(0x02);
-  LD_WriteReg(0x29, 0) ;
-  LD_WriteReg(0x02, 0) ;
+//  EX0 = 0;
+//  digitalWrite(EX0, LOW);
+//  ET0 = 0;
+  ucRegVal = readReg(0x2B);
+  ucHighInt = readReg(0x29);
+  ucLowInt = readReg(0x02);
+  writeReg(0x29, 0) ;
+  writeReg(0x02, 0) ;
   if (nLD_Mode == LD_MODE_MP3)
   {
-    if (LD_ReadReg(0xBA)&CAUSE_MP3_SONG_END)
+    if (readReg(0xBA)&CAUSE_MP3_SONG_END)
     {
-      LD_WriteReg(0x2B, 0);
-      LD_WriteReg(0xBA, 0x00);
-      LD_WriteReg(0xBC, 0x00);
+      writeReg(0x2B, 0);
+      writeReg(0xBA, 0x00);
+      writeReg(0xBC, 0x00);
       bMp3Play = 0;
-      LD_WriteReg(0x08, 0x01);
-      LD_WriteReg(0x08, 0x00);
-      LD_WriteReg(0x33, 0x00);
+      writeReg(0x08, 0x01);
+      writeReg(0x08, 0x00);
+      writeReg(0x33, 0x00);
       return ;
     }
     if (nMp3Pos >= nMp3Size)
     {
-      LD_WriteReg(0xBC, 0x01);
-      LD_WriteReg(0x29, 0x10);
-      EX0 = 1;
+      writeReg(0xBC, 0x01);
+      writeReg(0x29, 0x10);
+//      EX0 = 1;
+//      digitalWrite(EX0, HIGH);
       return;
     }
     LD_ReloadMp3Data();
-    LD_WriteReg(0x29, ucHighInt);
-    LD_WriteReg(0x02, ucLowInt) ;
-    EX0 = 1;
+    writeReg(0x29, ucHighInt);
+    writeReg(0x02, ucLowInt) ;
+//    EX0 = 1;
+//    digitalWrite(EX0, HIGH);
   }
 }
 
-attachInterrupt(0, ProcessInt0, LOW); //中断
+
