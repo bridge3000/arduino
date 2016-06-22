@@ -133,10 +133,13 @@ unsigned char bpDemoSound [DEMO_SOUND_SIZE] = {	//	对应verygood_withHead.mp3 �
 };
 
 void setup() {
+  Serial.begin(9600); 
+  Serial.print("setup");
   attachInterrupt(0, ProcessInt0, LOW); //中断
   LD_Init_MP3();
   LD_play();
 
+Serial.print("setup1");
 }
 
 void loop() {
@@ -172,6 +175,7 @@ void LD_reset()
 
 void LD_Init_MP3()
 {
+  Serial.println("init=");
   nLD_Mode = LD_MODE_MP3;
   LD_Init_Common();
   writeReg(0xBD, 0x02);
@@ -210,6 +214,7 @@ void LD_AdjustMIX2SPVolume(uint8 val)
 //开始播放
 void LD_play()
 {
+  Serial.print("play");
   nMp3Pos = 0; //mp3文件的当前播放位
   bMp3Play = 1; //播放状态
   if (nMp3Pos >= nMp3Size)
@@ -251,8 +256,11 @@ void LD_ReloadMp3Data()
 
 void LD_Init_Common()
 {
+  
   bMp3Play = 0;
-  readReg(0x06);
+  Serial.println("init common0");
+  readReg(0x06); //卡在这句了
+   Serial.println("init common011");
   writeReg(0x17, 0x35);
   delay(10);
   readReg(0x06);
@@ -260,10 +268,13 @@ void LD_Init_Common()
   delay(5);
   writeReg(0xCF, 0x43);
   delay(5);
+   Serial.println("init common1");
   writeReg(0xCB, 0x02); /*PLL setting*/
   writeReg(0x11, LD_PLL_11);
+   Serial.println("init common2");
   if (nLD_Mode == LD_MODE_MP3)
   {
+     Serial.println("1111");
     writeReg(0x1E, 0x00);
     //!!注意，下面三个寄存器，会随晶振频率变化而设置不同
     //!!注意,请根据使用的晶振频率修改参考程序中的CLK_IN
@@ -273,6 +284,7 @@ void LD_Init_Common()
   }
   else
   {
+     Serial.println("2222");
     writeReg(0x1E, 0x00);
     //!!注意，下面三个寄存器，会随晶振频率变化而设置不同
     //!!注意,请根据使用的晶振频率修改参考程序中的CLK_IN
@@ -286,6 +298,8 @@ void LD_Init_Common()
   writeReg(0xB9, 0x00);
   writeReg(0xCF, 0x4f);
   writeReg(0x6F, 0xFF);
+  
+   Serial.println("init over");
 }
 
 void cSHigh() {//CS拉高
@@ -326,6 +340,7 @@ byte transfer(byte _data) /////////////////SPI数据交换
 
 void ProcessInt0()
 {
+  Serial.print("zhongduan");
   uint8 nAsrResCount = 0;
 //  EX0 = 0;
 //  digitalWrite(EX0, LOW);
