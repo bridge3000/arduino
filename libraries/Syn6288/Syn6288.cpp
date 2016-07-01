@@ -1,66 +1,83 @@
-#if defined(ARDUINO) && ARDUINO >= 100
-  #include <Arduino.h>
-#else
-  #include <WProgram.h>
-#endif
-
+#include <inttypes.h>
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <util/delay.h>
 #include "Syn6288.h"
+#include <stdio.h>
+#include <arduino.h>
 
-Syn6288::Syn6288()
+uint8_t head[5] = {0xfd,0x00,0x00,0x01,0x00};//ºÏ³É²¥·ÅÃüÁî
+uint8_t sound[5] = {0xfd,0x00,0x00,0x01,0x01};//ºÏ³ÉÌáÊ¾Òô
+uint16_t boud[5]={0xFD,0x00,0x03,0x31,0x00}; //ÉèÖÃ²¨ÌØÂÊ
+/*·¢ËÍÎÄ±¾ºÏ³ÉÃüÁî£¬musicÎª±³¾°ÒôÀÖÉèÖÃ*/
+void Syn6288::play(uint8_t *text,uint8_t TEXTLEN,uint8_t music)
+  {
+		pi=0;
+		delay(100);
+  head[2]=TEXTLEN+3;
+   switch(music)
+        {
+          case 0: head[4]=0x01;break;
+          case 1: head[4]=0x09;break;
+          case 2: head[4]=0x11;break;
+          case 3: head[4]=0x19;break;
+          case 4: head[4]=0x21;break;
+          case 5: head[4]=0x29;break; 
+          case 6: head[4]=0x31;break;
+          case 7: head[4]=0x39;break;
+          case 8: head[4]=0x41;break;
+          case 9: head[4]=0x49;break; 
+          case 10: head[4]=0x51;break;
+          case 11: head[4]=0x59;break;
+          case 12: head[4]=0x61;break;
+          case 13: head[4]=0x69;break;
+          case 14: head[4]=0x71;break;
+          case 15: head[4]=0x79;break;
+        } 
+   for(int i=0;i<5;i++)
+      {
+        pi^=head[i];
+        Serial.write(head[i]);
+        delay(2);
+      }
+   for(int j=0;j<TEXTLEN;j++)
+      {
+        pi^=text[j];
+        Serial.write(text[j]);
+        delay(2);
+      }
+    Serial.write(pi);
+    delay(300*TEXTLEN);
+  }
+
+
+
+void Syn6288::Slaveboudset(uint16_t boudr)  //²¨ÌØÂÊÉèÖÃ
 {
-	_nPort = 1;
-	_nBkm = 0;
+	uint8_t p;
+    p=0;
+switch(boudr)
+  {
+
+   case 9600:   boud[4]=0x00;
+                   break;
+   case 19200:  boud[4]=0x01;
+                   break;
+  }
+  for(int z=0;z<HEADLEN;z++)
+    {
+      p^=boud[z];
+      Serial.write(boud[z]);
+      delay(2);
+    }               
+  Serial.write(p);
+  p=0;
+  for(int z=0;z<HEADLEN;z++)
+    {
+      p^=boud[z];
+      Serial.write(boud[z]);
+      delay(2);
+    }               
+  Serial.write(p);
+  delay(200);
 }
-
-void Syn6288::Speech(const char * txt,uchar bkm,uchar port)
-{
-	uchar i=0;
-	uchar head[5];
-	uchar x=0;
-
-	head[0]=0xfd;
-	head[1]=0x00;
-	head[3]=0x01;
-
-	_nPort=port;
-	_nBkm=bkm % (BKM_MAX + 1);
-	head[2]=sizeof(txt) + 3;
-	head[4]=_nBkm << 3;
-	Serial.write(head,HEAD_LEN);
-	for(i=0;i<HEAD_LEN;i++)
-	{
-		x=x^head[i];
-		if(_nPort==1)
-			Serial.write(head[i]);
-		else if(_nPort==2)
-//			Serial2.write(head[i]); //å¯èƒ½æ˜¯è½¯ä¸²å£ï¼Œç¨‹åºé‡Œæ²¡æœ‰ä½“ç°ï¼Œæ‰€ä»¥æš‚æ—¶æ³¨é‡Š
-			Serial.write(head[i]);
-	}
-
-	for(i=0;i<head[2];i++)
-	{
-		x=x^txt[i];
-		if(_nPort==1)
-			Serial.write(txt[i]);
-		else if(_nPort == 2)
-//			Serial2.write(txt[i]);
-			Serial.write(txt[i]);
-	}
-	
-	if(_nPort == 1)
-		Serial.write(x);
-	else if(_nPort == 2)
-//		Serial2.write(x);
-		Serial.write(x);
-}
-
-void Syn6288::Speech(const char * txt,uchar bkm)
-{
-	Speech(txt,bkm,_nPort);
-}
-
-void Syn6288::Speech(const char * txt)
-{
-	Speech(txt,_nBkm,_nPort);
-}
-

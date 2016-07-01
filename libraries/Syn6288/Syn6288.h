@@ -1,19 +1,31 @@
-#ifndef SYN6288_H_
-#define SYN6288_H_
-#define uchar unsigned char
-#define HEAD_LEN 5
-#define BKM_MAX 5
+#ifndef Syn6288_h
+#define Syn6288_h
+#include <inttypes.h>
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+#include <util/delay.h>
+#include <stddef.h>
 
+#define HEADLEN      5
+//#define LEN_OFFSET    2
+
+//#define uint8_t    unsigned int
 class Syn6288
 {
-	public:
-	Syn6288();
-	void Speech(const char * txt,uchar bkm,uchar port);
-	void Speech(const char * txt,uchar bkm);
-	void Speech(const char * txt);
-	private:
-	uchar _nPort;
-	uchar _nBkm;
-};
+  public:
 
+//private:
+uint8_t music;
+uint8_t TEXTLEN;
+uint8_t pi;
+void play(uint8_t *text,uint8_t TEXTLEN,uint8_t music);
+//void play(uint8_t *text,uint8_t music);
+void Slaveboudset(uint16_t boudr);
+void stop();
+void restore();
+void inquire();
+void Pause();
+void sleep();
+
+};
 #endif
