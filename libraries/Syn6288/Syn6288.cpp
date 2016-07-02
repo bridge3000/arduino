@@ -50,8 +50,6 @@ void Syn6288::play(uint8_t *text,uint8_t TEXTLEN,uint8_t music)
     delay(300*TEXTLEN);
   }
 
-
-
 void Syn6288::Slaveboudset(uint16_t boudr)  //²¨ÌØÂÊÉèÖÃ
 {
 	uint8_t p;
