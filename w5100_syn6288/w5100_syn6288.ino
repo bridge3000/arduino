@@ -14,13 +14,12 @@ String headKey = "";
 String headValue = "";
 
 Syn6288 syn;
-uint8_t text1[] = {};
+uint8_t text1[10];
 int iii = 0;
 
 void setup()
 {
   Serial.begin(9600);
-
 
   //w5100
   if (Ethernet.begin(mac) == 0) {
@@ -61,9 +60,16 @@ void receiveResponse()
     {
       if (c != '\n') //正在接收value
       {
-        headValue += c;
-        text1[iii] = c;
-        iii++;
+        //        Serial.println(c);
+        if (c != 32)
+        {
+          headValue += c;
+          if (headKey == "Response-Msg")
+          {
+            text1[iii] = c;
+            iii++;
+          }
+        }
       }
       else //换行了，开始读value
       {
@@ -75,7 +81,6 @@ void receiveResponse()
         else if (headKey == "Response-Msg")
         {
           responseMsg = headValue;
-
         }
 
         headKey = "";
@@ -91,8 +96,15 @@ void receiveResponse()
     responseType = 0;
     questionType = "";
 
+    Serial.println("text1=");
+    Serial.println(text1[0]);
+    Serial.println(text1[1]);
+    Serial.println(text1[2]);
+    Serial.println(text1[3]);
+
+    Serial.println(responseMsg);
     syn.play(text1, sizeof(text1), 3);
-    delay(100);   //循环间隔100uS
+    delay(3000);   //循环间隔100uS
 
   }
 }
