@@ -14,36 +14,41 @@ String headKey = "";
 String headValue = "";
 
 Syn6288 syn;
-uint8_t text1[10];
-int iii = 0;
+uint8_t text1[20]; 
+int iii = 0; //中文字符的码的长度
+int isFetching = 0; //是否正在获取信息
 
 void setup()
 {
   Serial.begin(9600);
 
-  //w5100
   if (Ethernet.begin(mac) == 0) {
     Serial.println("Failed to configure Ethernet using DHCP");
     Ethernet.begin(mac, ip);
   }
 
   Serial.println("initialize network...");
-  delay(1000);
-
-  getSoundText();
+  delay(1000);  
 }
 
 void loop()
-{
-  receiveResponse();
+{   
+  if(isFetching)
+  {
+    receiveResponse();
+  }
+  else 
+  {
+    getSoundText();
+  }  
 }
 
-void receiveResponse()
+/*每次接收一个字符*/
+void receiveResponse() 
 {
-  //http response
-  if (client.available()) {
+  if (client.available()) 
+  {
     char c = client.read();
-    //    Serial.print(c);
 
     if (responseType == 0)
     {
@@ -60,8 +65,7 @@ void receiveResponse()
     {
       if (c != '\n') //正在接收value
       {
-        //        Serial.println(c);
-        if (c != 32)
+        if (c != 32) //:后面的空格不处理
         {
           headValue += c;
           if (headKey == "Response-Msg")
@@ -89,23 +93,22 @@ void receiveResponse()
     }
   }
 
-  if (!client.connected()) {
-    //    Serial.println("disconnecting.");
+  if (!client.connected()) //连接结束，把变量都初始化
+  {
     client.stop();
 
     responseType = 0;
     questionType = "";
 
-    Serial.println("text1=");
-    Serial.println(text1[0]);
-    Serial.println(text1[1]);
-    Serial.println(text1[2]);
-    Serial.println(text1[3]);
-
-    Serial.println(responseMsg);
-    syn.play(text1, sizeof(text1), 3);
-    delay(3000);   //循环间隔100uS
-
+    syn.play(text1, iii, 3);    
+    iii = 0;
+    isFetching = 0;
+    for(int i=0;i<20;i++)
+    {
+      text1[i] = 0;
+    }
+  
+    delay(200000);
   }
 }
 
@@ -118,6 +121,7 @@ void sendServerQuestion(String action)
     client.println("Host: www.milan100.com");
     client.println("Connection: close");
     client.println();
+    isFetching = 1;
   }
   else {
     Serial.println("connection failed");
@@ -127,5 +131,6 @@ void sendServerQuestion(String action)
 void getSoundText()
 {
   sendServerQuestion("get_audio");
+  isFetching = 1;
 }
 
