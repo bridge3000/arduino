@@ -108,7 +108,7 @@ void receiveResponse()
       text1[i] = 0;
     }
   
-    delay(200000);
+    delay(10000);
   }
 }
 
