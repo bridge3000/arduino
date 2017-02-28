@@ -13,21 +13,25 @@ void setup() {
 void loop() {
   int infraredPinState = digitalRead(infraredPin);
   int lightState = digitalRead(lightPin);
-  //  Serial.println(infraredPinState);
+//   Serial.println(infraredPinState);
+   
+//       Serial.print("light=");
+//    Serial.println(lightState);
+  
 
   if ( (infraredPinState == 1) && (lightState == 1))
+//    if ( (infraredPinState == 1) )
   {
-    delay(2000);
-    if ( (infraredPinState == 1) && (lightState == 1)) //2秒后还能检测到生物红外说明不是临时通过
-    {
-      digitalWrite(ledPin, HIGH);
+//    delay(2000);
+//    if ( (infraredPinState == 1) && (lightState == 1)) //2秒后还能检测到生物红外说明不是临时通过
+//    {
+     digitalWrite(ledPin, HIGH);
       delay(30000);
       digitalWrite(ledPin, LOW);
-    }
+//    }
   }
 
-  //  Serial.print("light=");
-  //  Serial.println(lightState);
+
 
   delay(100);
 }
