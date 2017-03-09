@@ -32,7 +32,7 @@ void setup()
 
 	Serial.begin(9600);	//波特率9600
 	irrecv.enableIRIn(); // Start the receiver
-
+cheon();
 }
 void run(int time)     // 前进
 {
@@ -45,6 +45,7 @@ void run(int time)     // 前进
 //  analogWrite(Left_motor_go,200);//PWM比例0~255调速，左右轮差异略增减
 //  analogWrite(Left_motor_back,0);
 //  delay(time * 100);   //执行时间，可以调整  
+
 }
 
 void cheon()     // 前进
